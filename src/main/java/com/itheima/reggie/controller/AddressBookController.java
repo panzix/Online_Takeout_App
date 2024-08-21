@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.itheima.reggie.common.BaseContext;
+import com.itheima.reggie.common.CustomException;
 import com.itheima.reggie.common.R;
 import com.itheima.reggie.entity.AddressBook;
 import com.itheima.reggie.service.AddressBookService;
@@ -65,6 +66,28 @@ public class AddressBookController {
         } else {
             return R.error("没有找到该对象");
         }
+    }
+
+    @PutMapping
+    public R<String> updateAdd(@RequestBody AddressBook addressBook) {
+        if (addressBook == null) {
+            throw new CustomException("地址信息不存在，请刷新重试");
+        }
+        addressBookService.updateById(addressBook);
+        return R.success("地址修改成功");
+    }
+
+    @DeleteMapping()
+    public R<String> deleteAdd(@RequestParam("ids") Long id) {
+        if (id == null) {
+            throw new CustomException("地址信息不存在，请刷新重试");
+        }
+        AddressBook addressBook = addressBookService.getById(id);
+        if (addressBook == null) {
+            throw new CustomException("地址信息不存在，请刷新重试");
+        }
+        addressBookService.removeById(id);
+        return R.success("地址删除成功");
     }
 
     /**
