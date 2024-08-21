@@ -1,6 +1,7 @@
 package com.itheima.reggie.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.itheima.reggie.common.R;
 import com.itheima.reggie.dto.DishDto;
@@ -185,6 +186,16 @@ public class DishController {
         }).collect(Collectors.toList());
 
         return R.success(dishDtoList);
+    }
+
+    @PostMapping("/status/{status}")
+    public R<String> status(@PathVariable Integer status, @RequestParam List<Long> ids) {
+        log.info("status:{},ids:{}", status, ids);
+        LambdaUpdateWrapper<Dish> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.in(ids != null, Dish::getId, ids);
+        updateWrapper.set(Dish::getStatus, status);
+        dishService.update(updateWrapper);
+        return R.success("批量操作成功");
     }
 
 }
