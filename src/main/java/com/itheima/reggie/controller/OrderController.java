@@ -7,14 +7,18 @@ import com.itheima.reggie.common.R;
 import com.itheima.reggie.dto.OrdersDto;
 import com.itheima.reggie.entity.OrderDetail;
 import com.itheima.reggie.entity.Orders;
+import com.itheima.reggie.entity.ShoppingCart;
 import com.itheima.reggie.service.OrderDetailService;
 import com.itheima.reggie.service.OrderService;
+import com.itheima.reggie.service.ShoppingCartService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -30,6 +34,10 @@ public class OrderController {
 
     @Autowired
     private OrderDetailService orderDetailService;
+
+    @Autowired
+    private ShoppingCartService shoppingCartService;
+
     /**
      * 用户下单
      * @param orders
@@ -72,5 +80,29 @@ public class OrderController {
         //日志输出看一下
         log.info("list:{}", list);
         return R.success(ordersDtoPage);
+    }
+
+    /**
+     * 再来一单
+     * @param map
+     * @return
+     */
+    @PostMapping("/again")
+    public R<String> again(@RequestBody Map<String, String> map) {
+        Long orderId = Long.valueOf(map.get("id"));
+        LambdaQueryWrapper<OrderDetail> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(OrderDetail::getOrderId, orderId);
+        List<OrderDetail> details = orderDetailService.list(queryWrapper);
+        Long userId = BaseContext.getCurrentId();
+        List<ShoppingCart> shoppingCarts = details.stream().map((item) -> {
+            ShoppingCart shoppingCart = new ShoppingCart();
+            BeanUtils.copyProperties(item, shoppingCart);
+            shoppingCart.setUserId(userId);
+            shoppingCart.setCreateTime(LocalDateTime.now());
+            return shoppingCart;
+        }).collect(Collectors.toList());
+
+        shoppingCartService.saveBatch(shoppingCarts);
+        return R.success("喜欢吃就再来一单吖~");
     }
 }
