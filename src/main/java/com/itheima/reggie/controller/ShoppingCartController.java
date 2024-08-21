@@ -127,7 +127,7 @@ public class ShoppingCartController {
 
         LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ShoppingCart::getUserId,BaseContext.getCurrentId());
-        queryWrapper.orderByAsc(ShoppingCart::getCreateTime);
+        queryWrapper.orderByDesc(ShoppingCart::getCreateTime);
 
         List<ShoppingCart> list = shoppingCartService.list(queryWrapper);
 
