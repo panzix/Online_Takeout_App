@@ -177,4 +177,19 @@ public class SetmealController {
         }).collect(Collectors.toList());
         return R.success(dtoList);
     }
+
+    /**
+     * 套餐批量起售停售
+     * @param status
+     * @param ids
+     * @return
+     */
+    @PostMapping("/status/{status}")
+    public R<String> status(@PathVariable String status, @RequestParam List<Long> ids) {
+        LambdaUpdateWrapper<Setmeal> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.in(Setmeal::getId, ids);
+        updateWrapper.set(Setmeal::getStatus, status);
+        setmealService.update(updateWrapper);
+        return R.success("批量操作成功");
+    }
 }
